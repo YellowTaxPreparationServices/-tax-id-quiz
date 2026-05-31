@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What's Your Tax ID? – ITIN or SSN Quiz</title>
+  <meta name="description" content="A fun, free quiz to find out if you need an ITIN or can use your SSN to file U.S. taxes. Built with ❤️ by Yellow Business Services Co.">
+  <style>
+    :root {
+      --pri: #1d4ed8;
+      --pri-hi: #3b82f6;
+      --accent: #FFD54F;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #065f46;
+      --success-bg: #ecfdf5;
+      --warn: #92400e;
+      --warn-bg: #fff8e1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #f0f4ff, #fef9c3);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      transition: background 0.5s;
+    }
+    .container { max-width: 600px; width: 100%; }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 1.5rem; }
+    .header h1 {
+      font-size: clamp(2rem, 8vw, 2.8rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--pri), #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.3rem;
+    }
+    .header .sub { font-size: 1rem; color: var(--muted); }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+      animation: fadeSlide 0.6s ease;
+    }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Steps */
+    .question-step { display: none; }
+    .question-step.active { display: block; }
+    .question-text {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--pri);
+    }
+    .options { display: flex; flex-direction: column; gap: 0.8rem; }
+    .option {
+      padding: 1rem 1.2rem;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .option:hover, .option.selected {
+      border-color: var(--pri);
+      background: #eff6ff;
+      transform: scale(1.02);
+    }
+    .option .emoji { font-size: 1.5rem; }
+
+    /* Buttons */
+    .btn {
+      background: var(--pri);
+      color: #fff;
+      border: none;
+      padding: 1rem 1.5rem;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 1.2rem;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn:hover { background: var(--pri-hi); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    /* Result */
+    .result-card {
+      text-align: center;
+      padding: 1.5rem;
+      border-radius: 20px;
+      margin-top: 1rem;
+      animation: pop 0.5s ease;
+    }
+    @keyframes pop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .result-card.itin { background: var(--warn-bg); border: 2px solid #facc15; }
+    .result-card.ssn { background: var(--success-bg); border: 2px solid #a7f3d0; }
+    .result-icon { font-size: 3rem; }
+    .result-title { font-size: 1.8rem; font-weight: 800; margin: 0.5rem 0; }
+    .result-desc { color: var(--muted); margin-bottom: 1rem; }
+
+    /* CTA box – non‑removable */
+    .cta-box {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1rem;
+      margin: 1rem 0;
+      border: 2px dashed var(--pri);
+    }
+    .cta-box p { font-weight: 700; color: var(--pri); margin-bottom: 0.3rem; }
+    .cta-box a {
+      display: inline-block;
+      background: var(--pri);
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      margin-top: 0.3rem;
+    }
+    .cta-box a:hover { background: var(--pri-hi); }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 1.5rem;
+    }
+    .footer a { color: var(--pri); text-decoration: none; font-weight: 600; }
+
+    /* Share */
+    .share {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 0.8rem;
+    }
+    .share a {
+      background: #1d9bf0;
+      color: #fff;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .share a.whatsapp { background: #25d366; }
+    .share a.linkedin { background: #0a66c2; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🕵️‍♂️ What's Your Tax ID?</h1>
+      <p class="sub">ITIN or SSN – find out in 30 seconds!</p>
+    </div>
+
+    <div class="card" id="quiz-card">
+      <!-- Step 1 -->
+      <div class="question-step active" id="step1">
+        <div class="question-text">1. Are you a U.S. citizen or permanent resident?</div>
+        <div class="options">
+          <div class="option" onclick="selectAnswer(1, 'yes')"><span class="emoji">🇺🇸</span> Yes, citizen or green card holder</div>
+          <div class="option" onclick="selectAnswer(1, 'no')"><span class="emoji">🌍</span> No, non‑resident / international</div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="question-step" id="step2">
+        <div class="question-text">2. Do you have a Social Security Number (SSN)?</div>
+        <div class="options">
+          <div class="option" onclick="selectAnswer(2, 'has_ssn')"><span class="emoji">✅</span> Yes, I have an SSN</div>
+          <div class="option" onclick="selectAnswer(2, 'no_ssn')"><span class="emoji">❌</span> No SSN</div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="question-step" id="step3">
+        <div class="question-text">3. Do you need to file a U.S. tax return this year?</div>
+        <div class="options">
+          <div class="option" onclick="selectAnswer(3, 'must_file')"><span class="emoji">📄</span> Yes, I have U.S. income</div>
+          <div class="option" onclick="selectAnswer(3, 'no_file')"><span class="emoji">🤷</span> No / not sure</div>
+        </div>
+      </div>
+
+      <button class="btn" id="next-btn" onclick="nextStep()">Next →</button>
+    </div>
+
+    <div id="result-area"></div>
+
+    <div class="footer">
+      Made with ❤️ by <a href="https://yellowbusinessservices.com" target="_blank">Yellow Business Services Co.</a><br>
+      EA‑led tax prep • Hardship pricing from $29
+    </div>
+  </div>
+
+  <script>
+    let answers = { step1: null, step2: null, step3: null };
+    let currentStep = 1;
+
+    function selectAnswer(step, value) {
+      answers['step'+step] = value;
+      const container = document.getElementById('step'+step);
+      container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+      const selected = container.querySelector(`[onclick="selectAnswer(${step}, '${value}')"]`);
+      if(selected) selected.classList.add('selected');
+    }
+
+    function nextStep() {
+      if (currentStep === 1 && !answers.step1) return alert('Please choose an option!');
+      if (currentStep === 2 && !answers.step2) return alert('Please choose an option!');
+
+      if (currentStep === 1) {
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step2').classList.add('active');
+        currentStep = 2;
+      } else if (currentStep === 2) {
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('step3').classList.add('active');
+        currentStep = 3;
+        document.getElementById('next-btn').style.display = 'none';
+        // Add show result button
+        const quizCard = document.getElementById('quiz-card');
+        const resultBtn = document.createElement('button');
+        resultBtn.className = 'btn';
+        resultBtn.textContent = '🔮 Reveal My Tax ID';
+        resultBtn.onclick = showResult;
+        quizCard.appendChild(resultBtn);
+      }
+    }
+
+    function showResult() {
+      if (!answers.step3) return alert('Please select whether you need to file.');
+
+      let resultHTML = '';
+      const site = 'https://yellowbusinessservices.com';
+      const name = 'Yellow Business Services Co.';
+
+      if (answers.step1 === 'yes' && answers.step2 === 'has_ssn') {
+        resultHTML = `
+          <div class="result-card ssn">
+            <div class="result-icon">✅</div>
+            <div class="result-title">You're SSN Ready!</div>
+            <div class="result-desc">You can file using your Social Security Number. No ITIN needed.</div>
+            <div class="cta-box">
+              <p>Need a hand filing?</p>
+              <p>We prepare CPA‑reviewed returns starting at <strong>$49</strong>.</p>
+              <a href="${site}" target="_blank">📁 File with ${name}</a>
+            </div>
+          </div>`;
+      } else if (answers.step1 === 'no' && answers.step2 === 'no_ssn' && answers.step3 === 'must_file') {
+        resultHTML = `
+          <div class="result-card itin">
+            <div class="result-icon">🔑</div>
+            <div class="result-title">You Need an ITIN!</div>
+            <div class="result-desc">Since you're a non‑resident and need to file, you'll need an Individual Taxpayer Identification Number (ITIN).</div>
+            <div class="cta-box">
+              <p>We specialize in ITIN applications (Form W‑7).</p>
+              <p>Starting at <strong>$149</strong> (hardship from $29).</p>
+              <a href="${site}" target="_blank">🛂 Get ITIN Help from ${name}</a>
+            </div>
+          </div>`;
+      } else if (answers.step3 === 'no_file') {
+        resultHTML = `
+          <div class="result-card ssn">
+            <div class="result-icon">😎</div>
+            <div class="result-title">No Filing Needed</div>
+            <div class="result-desc">If you don't have U.S. income, you likely don't need to file. But if you're unsure, we can help!</div>
+            <div class="cta-box">
+              <p>Questions about your tax status?</p>
+              <a href="${site}" target="_blank">📞 Chat with ${name}</a>
+            </div>
+          </div>`;
+      } else if (answers.step2 === 'has_ssn') {
+        resultHTML = `
+          <div class="result-card ssn">
+            <div class="result-icon">👍</div>
+            <div class="result-title">You Can Use Your SSN</div>
+            <div class="result-desc">You're eligible to file with your SSN. Let's make it easy!</div>
+            <div class="cta-box">
+              <p>CPA‑reviewed returns from $49. Hardship pricing available.</p>
+              <a href="${site}" target="_blank">🚀 File with ${name}</a>
+            </div>
+          </div>`;
+      } else {
+        resultHTML = `
+          <div class="result-card itin">
+            <div class="result-icon">🤔</div>
+            <div class="result-title">You May Need an ITIN</div>
+            <div class="result-desc">Based on your answers, an ITIN could be required. We'll guide you through the W‑7 process.</div>
+            <div class="cta-box">
+              <p>ITIN experts – affordable, EA‑reviewed.</p>
+              <a href="${site}" target="_blank">📋 Start Your ITIN with ${name}</a>
+            </div>
+          </div>`;
+      }
+
+      // Add share buttons
+      const shareURL = encodeURIComponent(window.location.href);
+      const shareText = encodeURIComponent('I just took the "What\'s Your Tax ID?" quiz – super helpful!');
+      resultHTML += `
+        <div class="share">
+          <a href="https://twitter.com/intent/tweet?text=${shareText}&url=${shareURL}" target="_blank">🐦 Tweet</a>
+          <a href="https://wa.me/?text=${shareText}%20${shareURL}" target="_blank" class="whatsapp">📲 WhatsApp</a>
+          <a href="https://www.linkedin.com/shareArticle?mini=true&url=${shareURL}" target="_blank" class="linkedin">💼 LinkedIn</a>
+        </div>`;
+
+      document.getElementById('result-area').innerHTML = resultHTML;
+      document.getElementById('quiz-card').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
